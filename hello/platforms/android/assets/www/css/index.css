@@ -1,0 +1,36 @@
+
+::-webkit-scrollbar {
+
+        display: none;
+    }
+    ::-moz-scrollbar {
+
+        display: none;
+    }
+
+
+#main_frame
+{
+  position: absolute;
+  top: 0%;
+  left: 0%;
+  height: 100%;
+  width: 100%;
+}
+
+#map{
+  position: absolute;
+  top: 8%;
+  left: 0%;
+  height: 92%;
+  width: 100%;
+}
+
+#send_box{
+  position: absolute;
+  top: 90%;
+  left: 0%;
+  height: 10%;
+  width: 100%;
+  z-index: 2;
+}
