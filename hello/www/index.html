@@ -14,7 +14,20 @@
     </head>
     <body>
        <div id="main_frame">
+         <nav>
+          <div class="nav-wrapper">
+            <a href="#" class="brand-logo"><i class="material-icons">location_on</i></a>
+          </div>
+         </nav>
+
          <div id="map">
+         </div>
+         <div id="send_box">
+           <div class="row">
+             <div class="col s12 center">
+               <a class="waves-effect waves-light btn"><i class="material-icons right">location_on</i>send</a>
+             </div>
+           </div>
          </div>
        </div>
 
@@ -27,16 +40,34 @@
         <script>
         function initMap() {
 
-          var geocoder = new google.maps.Geocoder;
-          var infowindow = new google.maps.InfoWindow;
-
+          // var geocoder = new google.maps.Geocoder;
+          // var infowindow = new google.maps.InfoWindow;
+          //
 
           user_location={lat:  18.606875, lng: 73.875177};
 
-          map = new google.maps.Map(document.getElementById('map'), {
-            center: {lat:  18.606875, lng: 73.875177},
-            zoom: 15
+          var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 15  ,
+            center: user_location
           });
+
+          marker = new google.maps.Marker({
+            map: map,
+            draggable: true,
+            animation: google.maps.Animation.DROP,
+            position: user_location
+          });
+
+          marker.addListener('click', toggleBounce);
+
+        }
+
+        function toggleBounce() {
+          if (marker.getAnimation() !== null) {
+            marker.setAnimation(null);
+          } else {
+            marker.setAnimation(google.maps.Animation.BOUNCE);
+          }
         }
         </script>
         <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDzLlYZXgXOPfMrWJ5GdnVhd7t-HbJGQ0k&callback=initMap"
