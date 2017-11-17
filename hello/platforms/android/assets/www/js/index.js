@@ -33,6 +33,8 @@ var app = {
     // Update DOM on a Received Event
     receivedEvent: function(id) {
 
+        var main_frame_object=document.getElementById("main_frame");
+        main_frame_object.setAttribute('style','display:block');
 
         // var parentElement = document.getElementById(id);
         // var listeningElement = parentElement.querySelector('.listening');

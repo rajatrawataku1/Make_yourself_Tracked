@@ -38,27 +38,48 @@
         <script type="text/javascript" src="js/materialize.js"></script>
 
         <script>
+
+
         function initMap() {
 
           // var geocoder = new google.maps.Geocoder;
           // var infowindow = new google.maps.InfoWindow;
-          //
 
-          user_location={lat:  18.606875, lng: 73.875177};
+            var onSuccess = function(position) {
+                // alert('Latitude: '          + position.coords.latitude          + '\n' +
+                //       'Longitude: '         + position.coords.longitude         + '\n' +
+                //       'Altitude: '          + position.coords.altitude          + '\n' +
+                //       'Accuracy: '          + position.coords.accuracy          + '\n' +
+                //       'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+                //       'Heading: '           + position.coords.heading           + '\n' +
+                //       'Speed: '             + position.coords.speed             + '\n' +
+                //       'Timestamp: '         + position.timestamp                + '\n');
 
-          var map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 15  ,
-            center: user_location
-          });
+                      user_location={lat:  position.coords.latitude, lng: position.coords.longitude};
 
-          marker = new google.maps.Marker({
-            map: map,
-            draggable: true,
-            animation: google.maps.Animation.DROP,
-            position: user_location
-          });
+                      var map = new google.maps.Map(document.getElementById('map'), {
+                        zoom: 15  ,
+                        center: user_location
+                      });
 
-          marker.addListener('click', toggleBounce);
+                      marker = new google.maps.Marker({
+                        map: map,
+                        draggable: true,
+                        animation: google.maps.Animation.DROP,
+                        position: user_location
+                      });
+
+                      marker.addListener('click', toggleBounce);
+
+
+            };
+
+          function onError(error) {
+              alert('code: '    + error.code    + '\n' +
+                    'message: ' + error.message + '\n');
+          }
+
+          navigator.geolocation.getCurrentPosition(onSuccess, onError);
 
         }
 
