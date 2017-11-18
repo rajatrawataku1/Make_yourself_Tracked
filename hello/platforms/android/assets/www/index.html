@@ -91,6 +91,20 @@
            </div>
          </div>
 
+         <div id="time_calculator">
+           <div class="card">
+             <div class="row"> <br>
+               <div class="col s2 offset-s1 ">
+                 <i class="material-icons right">timer</i>
+               </div>
+               <div class="col s9" id="time">
+               </div> <br> <br>
+               <!-- <div class="col s12 center" id="distance"> <b>1.2 Km </b>
+               </div> -->
+             </div>
+           </div>
+         </div>
+
        </div>
 
         <script type="text/javascript" src="cordova.js"></script>
@@ -285,13 +299,51 @@
         }
 
         function start_getting_location(){
+          $("#time_calculator").css('display','block');
           $("#choose_box").css('display','none');
           socket=io.connect('http://192.168.43.98:3000');
+
+          var origin1 = new google.maps.LatLng(Latitude,Longitude);
+          var service = new google.maps.DistanceMatrixService();
+
+
           socket.on('getloc',function(msg){
+            var lat_lng=[];
             var latLong = new google.maps.LatLng(msg.lat, msg.lng);
             marker.setPosition(latLong);
             map.panTo(latLong);
-          })
+            cityCircle.setCenter(latLong);
+            lat_lng.push(latLong);
+            // find the time required by the person to reach
+            service.getDistanceMatrix(
+              {
+                origins: [origin1],
+                destinations: lat_lng,
+                travelMode: 'DRIVING',
+                avoidHighways:true,
+                avoidTolls: true,
+                 drivingOptions: {
+                     departureTime: new Date(Date.now()),
+                   trafficModel: 'bestguess'
+                  }
+              }, callback);
+
+              function callback(response, status){
+                  if(status=="OK") {
+                    alert("I am inside status okayy function");
+                    alert(Latitude+' , '+Longitude);
+                    alert(latLong.lat()+ ' , '+latLong.lng());
+                    distance_matrix=response;
+                    alert(distance_matrix.rows["0"].elements["0"].duration.text);
+                    $("#time").empty();
+                    $("#time").html('<b>'+ distance_matrix.rows["0"].elements["0"].duration.text+' away </b>')
+                    // console.log(response);
+                  } else {
+                      alert("Error: " + status);
+                  }
+               }
+
+          });
 
 
         }
