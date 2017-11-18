@@ -33,8 +33,16 @@ var app = {
     // Update DOM on a Received Event
     receivedEvent: function(id) {
 
-        var main_frame_object=document.getElementById("main_frame");
-        main_frame_object.setAttribute('style','display:block');
+        $('.tooltipped').tooltip({delay: 50});
+        var parentElement = document.getElementById("main_frame");
+        parentElement.setAttribute('style','display:block');
+
+        Materialize.toast('Getting you location', 4000)
+        $(".preloader-wrapper").addClass("active");
+        get_my_position();
+
+        // var main_frame_object=document.getElementById("main_frame");
+        // main_frame_object.setAttribute('style','display:block');
 
         // var parentElement = document.getElementById(id);
         // var listeningElement = parentElement.querySelector('.listening');

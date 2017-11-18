@@ -13,22 +13,84 @@
         <title>Hello World</title>
     </head>
     <body>
-       <div id="main_frame">
+
+      <div id="main_frame">
          <nav>
           <div class="nav-wrapper">
             <a href="#" class="brand-logo"><i class="material-icons">location_on</i></a>
           </div>
          </nav>
 
+         <div id="loader_box">
+           <div class="preloader-wrapper big">
+            <div class="spinner-layer spinner-blue">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+
+            <div class="spinner-layer spinner-red">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+
+            <div class="spinner-layer spinner-yellow">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+
+            <div class="spinner-layer spinner-green">
+              <div class="circle-clipper left">
+                <div class="circle"></div>
+              </div><div class="gap-patch">
+                <div class="circle"></div>
+              </div><div class="circle-clipper right">
+                <div class="circle"></div>
+              </div>
+            </div>
+          </div>
+         </div>
+
          <div id="map">
          </div>
-         <div id="send_box">
+
+         <div id="choose_box">
            <div class="row">
-             <div class="col s12 center">
-               <a class="waves-effect waves-light btn"><i class="material-icons right">location_on</i>send</a>
+             <div class="col s6  center">
+               <a onclick="start_the_user()" class="waves-effect waves-light btn"><i class="material-icons right">location_on</i>User</a>
+             </div>
+             <div class="col s6 center">
+               <a onclick="start_getting_location()" class="waves-effect waves-light btn"><i class="material-icons right">location_off</i>Doctor</a>
              </div>
            </div>
          </div>
+
+
+         <div id="send_box">
+           <div class="row">
+             <div class="col s6  center">
+               <a onclick="watchMapPosition()" class="waves-effect waves-light btn"><i class="material-icons right">location_on</i>start</a>
+             </div>
+             <div class="col s6 center">
+               <a onclick="stop_watch()" class="waves-effect waves-light btn"><i class="material-icons right">location_off</i>stop</a>
+             </div>
+           </div>
+         </div>
+
        </div>
 
         <script type="text/javascript" src="cordova.js"></script>
@@ -36,52 +98,133 @@
         <script type="text/javascript" src="js/jquery.min.js"></script>
         <script type="text/javascript" src="js/index.js"></script>
         <script type="text/javascript" src="js/materialize.js"></script>
+        <script type="text/javascript" src="socket.io.js"></script>
 
         <script>
 
+        var marker=undefined;
+        var map=undefined;
+        var socket=undefined;
 
-        function initMap() {
+        function getMap(latitude, longitude) {
 
-          // var geocoder = new google.maps.Geocoder;
-          // var infowindow = new google.maps.InfoWindow;
+          var mapOptions = {
+              center: new google.maps.LatLng(0, 0),
+              zoom: 1,
+              mapTypeId: google.maps.MapTypeId.ROADMAP
+          };
 
-            var onSuccess = function(position) {
-                // alert('Latitude: '          + position.coords.latitude          + '\n' +
-                //       'Longitude: '         + position.coords.longitude         + '\n' +
-                //       'Altitude: '          + position.coords.altitude          + '\n' +
-                //       'Accuracy: '          + position.coords.accuracy          + '\n' +
-                //       'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
-                //       'Heading: '           + position.coords.heading           + '\n' +
-                //       'Speed: '             + position.coords.speed             + '\n' +
-                //       'Timestamp: '         + position.timestamp                + '\n');
-
-                      user_location={lat:  position.coords.latitude, lng: position.coords.longitude};
-
-                      var map = new google.maps.Map(document.getElementById('map'), {
-                        zoom: 15  ,
-                        center: user_location
-                      });
-
-                      marker = new google.maps.Marker({
-                        map: map,
-                        draggable: true,
-                        animation: google.maps.Animation.DROP,
-                        position: user_location
-                      });
-
-                      marker.addListener('click', toggleBounce);
+          map = new google.maps.Map
+          (document.getElementById("map"), mapOptions);
 
 
-            };
+          var latLong = new google.maps.LatLng(latitude, longitude);
 
-          function onError(error) {
-              alert('code: '    + error.code    + '\n' +
-                    'message: ' + error.message + '\n');
-          }
+          marker = new google.maps.Marker({
+              position: latLong
+          });
 
-          navigator.geolocation.getCurrentPosition(onSuccess, onError);
+          marker.setMap(map);
+          map.setZoom(15);
+          map.setCenter(marker.getPosition());
+
+          $("#choose_box").css('display','block');
+      }
+
+        var watch_id="";
+        var Latitude=undefined;
+        var Longitude=undefined;
+
+        function get_my_position()
+        {
+          navigator.geolocation.getCurrentPosition(onMapSuccess, onMapError, { enableHighAccuracy: true });
+        }
+
+        var onMapSuccess = function (position) {
+
+            Latitude = position.coords.latitude;
+            Longitude = position.coords.longitude;
+
+            $(".preloader-wrapper").removeClass("active");
+            getMap(Latitude, Longitude);
 
         }
+
+        function onMapError(error) {
+            console.log('code: ' + error.code + '\n' +'message: ' + error.message + '\n');
+        }
+
+
+        // function start_navigation(){
+        //
+        //   var geocoder = new google.maps.Geocoder;
+        //   var infowindow = new google.maps.InfoWindow;
+        //   // var socket = io.connect('http://192.168.43.98:3000');
+        //
+        //     var onSuccess = function(position) {
+        //
+        //         // socket.emit('location send',{
+        //         //   lat :position.coords.latitude,
+        //         //   long:position.coords.longitude
+        //         // });
+        //
+        //         alert('Latitude: '          + position.coords.latitude          + '\n' +
+        //               'Longitude: '         + position.coords.longitude         + '\n' +
+        //               'Altitude: '          + position.coords.altitude          + '\n' +
+        //               'Accuracy: '          + position.coords.accuracy          + '\n' +
+        //               'Altitude Accuracy: ' + position.coords.altitudeAccuracy  + '\n' +
+        //               'Heading: '           + position.coords.heading           + '\n' +
+        //               'Speed: '             + position.coords.speed             + '\n' +
+        //               'Timestamp: '         + position.timestamp                + '\n');
+        //
+        //
+        //               // var my_awesome_script = document.createElement('script');
+        //               // my_awesome_script.setAttribute('src','https://maps.googleapis.com/maps/api/js?key=AIzaSyBptNSeUCZThZtfnKgG4vWy8lMsF3rQJfo&libraries=visualization');
+        //               // document.getElementById("map").append(my_awesome_script);
+        //
+        //               // var s = document.createElement( 'script' );
+        //               // var src="";
+        //               // s.setAttribute( 'src', src );
+        //               // s.onload=callback;
+        //               // document.body.appendChild( s );
+        //
+        //               // $("#map").append(script_insert);
+        //     }
+        //
+        //   function onError(error) {
+        //       alert('code: '    + error.code    + '\n' +
+        //             'message: ' + error.message + '\n');
+        //   }
+        //   // navigator.geolocation.getCurrentPosition(onSuccess, onError);
+        //
+        //   watchID = navigator.geolocation.watchPosition(onSuccess, onError, { timeout: 30000 });
+        //
+        // }
+        //
+        // function end_navigation(){
+        //   navigator.geolocation.clearWatch(watchID);
+        // }
+        //
+        //
+
+        // function initMap() {
+        //
+        //   user_location={lat:  19.000, lng: 20.000};
+        //
+        //   var map = new google.maps.Map(document.getElementById('map'), {
+        //     zoom: 4,
+        //     center: user_location
+        //   });
+        //
+        //   marker = new google.maps.Marker({
+        //     map: map,
+        //     draggable: true,
+        //     animation: google.maps.Animation.DROP,
+        //     position: user_location
+        //   });
+        //
+        //   marker.addListener('click', toggleBounce);
+        // }
 
         function toggleBounce() {
           if (marker.getAnimation() !== null) {
@@ -90,10 +233,59 @@
             marker.setAnimation(google.maps.Animation.BOUNCE);
           }
         }
-        </script>
-        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDzLlYZXgXOPfMrWJ5GdnVhd7t-HbJGQ0k&callback=initMap"
-        async defer>
-        </script>
 
+        var onMapWatchSuccess=function(position){
+
+          var updatedLatitude = position.coords.latitude;
+          var updatedLongitude = position.coords.longitude;
+
+          if (updatedLatitude != Latitude && updatedLongitude != Longitude) {
+
+              Latitude = updatedLatitude;
+              Longitude = updatedLongitude;
+
+              var latLong = new google.maps.LatLng(updatedLatitude, updatedLongitude);
+              marker.setPosition(latLong);
+              map.panTo(latLong);
+              try{
+                socket.emit('send',latLong);
+              }catch(err){
+                alert('socket not working');
+              }
+
+              // marker.setMap(map);
+              // map.setZoom(15);
+              // map.setCenter(marker.getPosition());
+              //
+              // getMap(updatedLatitude, updatedLongitude);
+          }
+        }
+
+        function watchMapPosition() {
+           Materialize.toast('Sending your location', 4000)
+           socket=io.connect('http://192.168.43.98:3000');
+           watch_id=navigator.geolocation.watchPosition(onMapWatchSuccess, onMapError, { enableHighAccuracy: true });
+        }
+
+        function stop_watch(){
+          navigator.geolocation.clearWatch(watch_id);
+        }
+
+        function start_getting_location(){
+          $("#choose_box").css('display','none');
+          socket=io.connect('http://192.168.43.98:3000');
+          socket.on('getloc',function(msg){
+            alert(msg);
+          })
+        }
+
+        function start_the_user(){
+          $("#choose_box").css('display','none');
+          $("#send_box").css('display','block');
+        }
+
+
+        </script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBptNSeUCZThZtfnKgG4vWy8lMsF3rQJfo"> </script>
     </body>
 </html>
