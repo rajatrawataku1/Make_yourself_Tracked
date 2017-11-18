@@ -105,6 +105,7 @@
         var marker=undefined;
         var map=undefined;
         var socket=undefined;
+        var cityCircle=undefined;
 
         function getMap(latitude, longitude) {
 
@@ -127,6 +128,16 @@
           marker.setMap(map);
           map.setZoom(15);
           map.setCenter(marker.getPosition());
+          cityCircle = new google.maps.Circle({
+            strokeColor: '#3949ab',
+            strokeOpacity: 0.5,
+            strokeWeight: 0.8,
+            fillColor: '#3d5afe',
+            fillOpacity: 0.20,
+            map: map,
+            center: marker.getPosition(),
+            radius: 150
+          });
 
           $("#choose_box").css('display','block');
       }
@@ -247,6 +258,8 @@
               var latLong = new google.maps.LatLng(updatedLatitude, updatedLongitude);
               marker.setPosition(latLong);
               map.panTo(latLong);
+              cityCircle.setCenter(latLong);
+
               try{
                 socket.emit('send',latLong);
               }catch(err){
@@ -275,8 +288,13 @@
           $("#choose_box").css('display','none');
           socket=io.connect('http://192.168.43.98:3000');
           socket.on('getloc',function(msg){
-            alert(msg);
+            var latLong = new google.maps.LatLng(msg.lat, msg.lng);
+            marker.setPosition(latLong);
+            map.panTo(latLong);
+            cityCircle.setCenter(latLong);
           })
+
+
         }
 
         function start_the_user(){
@@ -286,6 +304,6 @@
 
 
         </script>
-        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBptNSeUCZThZtfnKgG4vWy8lMsF3rQJfo"> </script>
+        <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBS5zrFMHGST1KjVwX4g2e563AoT-DKYzA	"> </script>
     </body>
 </html>

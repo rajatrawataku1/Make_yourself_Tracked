@@ -8,12 +8,11 @@ io.on('connection', function(socket){
   console.log('a user connected');
 
   socket.on('send', function(msg){
-    msg_main=msg;
     console.log('message: ' + msg.lat);
     console.log('message'+msg.lng);
+    socket.broadcast.emit('getloc',msg);
   });
 
-  socket.broadcast.emit('getloc',msg_main);
 
   // socket.on('typing', function(msg){
   //   socket.broadcast.emit('typing',msg);
